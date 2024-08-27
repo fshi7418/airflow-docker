@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libpq-dev \
     libaio1 \
+    pkg-config \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
