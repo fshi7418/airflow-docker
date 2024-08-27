@@ -7,25 +7,22 @@
 version: '3.2'
 
 services:
-  airflow:
-    image: 'trial-airflow:2.0'
+  postgres:
+    image: 'trial-postgres:2.0'
+    command: postgres -c 'max_connections=600'
     build:
-      context: ./docker-airflow
+      context: ./docker-postgres  # Adjust this path to where your Postgres Dockerfile is located
       dockerfile: Dockerfile
     environment:
-#      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:airflow_password@postgres:5432/airflow_db
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor  # or CeleryExecutor if you are using Celery
-#    depends_on:
-#      - postgres
-    ports:
-      - "8080:8080"  # Expose Airflow web server on port 8080
+      POSTGRES_USER: airflow_user
+      POSTGRES_PASSWORD: airflow_password
+      POSTGRES_DB: airflow_db
     volumes:
-      - airflow_data:/usr/local/airflow  # Persist Airflow data
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
     networks:
       - airflow_network
-
-volumes:
-  airflow_data:
 
 networks:
   airflow_network:
