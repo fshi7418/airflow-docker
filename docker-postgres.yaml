@@ -4,7 +4,6 @@
 #                                Default: airflow
 # _AIRFLOW_WWW_USER_PASSWORD   - Password for the administrator account (if requested).
 #                                Default: airflow
-version: '3.2'
 
 services:
   postgres:
@@ -18,7 +17,7 @@ services:
       POSTGRES_PASSWORD: airflow_password
       POSTGRES_DB: airflow_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /srv/postgres_data:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     networks:
@@ -26,5 +25,4 @@ services:
 
 networks:
   airflow_network:
-    external:
-      name: airflow_network
+    external: true
