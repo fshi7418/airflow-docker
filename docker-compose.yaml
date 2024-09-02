@@ -1,12 +1,7 @@
-# Basic Airflow cluster configuration for CeleryExecutor with Redis and PostgreSQL.
-#
-# _AIRFLOW_WWW_USER_USERNAME   - Username for the administrator account (if requested).
-#                                Default: airflow
-# _AIRFLOW_WWW_USER_PASSWORD   - Password for the administrator account (if requested).
-#                                Default: airflow
+#version: '3.8'
 
 x-airflow-common:
-  &airflow-common  # an alias
+  &airflow-common
     image: 'trial-airflow:2.0'
     build:
       context: ./docker-airflow
@@ -14,40 +9,22 @@ x-airflow-common:
     environment:
       &airflow-common-env
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:${POSTGRES_PASSWORD}@postgres:5432/airflow_docker
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor  # or CeleryExecutor if you are using Celery
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
     volumes:
-      - airflow_data:/usr/local/airflow  # Persist Airflow data
+      - airflow_data:/usr/local/airflow
       - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
       - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
       - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
       - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
-#    networks:
-#      - airflow_network
-
+    networks:
+      - airflow_network
 
 services:
-  postgres:
-    image: 'trial-postgres:2.0.1'
-    command: postgres -c 'max_connections=600'
-    build:
-      context: ./docker-postgres  # Adjust this path to where your Postgres Dockerfile is located
-      dockerfile: Dockerfile
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: postgres
-    volumes:
-      - /srv/postgres_data:/var/lib/postgresql/data
-    ports:
-      - '5433:5432'
-#    networks:
-#      - airflow_network
-
   airflow-webserver:
     <<: *airflow-common
     command: webserver
     ports:
-      - "8080:8080"  # Expose Airflow web server on port 8080
+      - "8080:8080"
 
   airflow-scheduler:
     <<: *airflow-common
@@ -56,7 +33,6 @@ services:
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
-    # yamllint disable rule:line-length
     command:
       - -c
       - |
@@ -105,7 +81,6 @@ services:
         mkdir -p /sources/logs /sources/dags /sources/plugins
         chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
         exec /entrypoint airflow version
-    # yamllint enable rule:line-length
     environment:
       <<: *airflow-common-env
       _AIRFLOW_DB_MIGRATE: 'true'
@@ -117,6 +92,9 @@ services:
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
 
+networks:
+  airflow_network:
+    external: true
+
 volumes:
   airflow_data:
-

@@ -1,4 +1,4 @@
-# PostgreSQL 16 container
+# postgres 16
 
 services:
   postgres:
@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # found in .env file
       POSTGRES_DB: postgres
     volumes:
       - /srv/postgres_data:/var/lib/postgresql/data
@@ -21,3 +21,4 @@ services:
 networks:
   airflow_network:
     external: true
+    driver: bridge
