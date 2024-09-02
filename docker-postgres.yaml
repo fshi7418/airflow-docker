@@ -1,0 +1,24 @@
+# postgres 16
+
+services:
+  postgres:
+    image: 'trial-postgres:2.0.1'
+    command: postgres -c 'max_connections=600'
+    build:
+      context: ./docker-postgres  # Adjust this path to where your Postgres Dockerfile is located
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # found in .env file
+      POSTGRES_DB: postgres
+    volumes:
+      - /srv/postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+    networks:
+      - airflow_network
+
+networks:
+  airflow_network:
+    external: true
+    driver: bridge
